@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
-export default function Login() {
+export default function Register() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -15,12 +16,12 @@ export default function Login() {
     setError('')
     setLoading(true)
 
-    const result = await login(email, password)
+    const result = await register(name, email, password)
 
     setLoading(false)
 
     if (result.ok) {
-      navigate('/')
+      navigate('/login')
     } else {
       setError(result.error)
     }
@@ -33,11 +34,23 @@ export default function Login() {
           <span className="brand-mark" />
           OrderExpress
         </h1>
-        <p className="login-sub">Entre para gerenciar seus pedidos</p>
+        <p className="login-sub">Crie sua conta para começar a pedir</p>
 
         {error && <div className="login-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label htmlFor="name">Nome</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="name"
+              required
+              disabled={loading}
+            />
+          </div>
           <div className="field">
             <label htmlFor="email">Email</label>
             <input
@@ -57,17 +70,17 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
               disabled={loading}
             />
           </div>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </form>
 
-        <p>Não tem uma conta? Cadastre-se <Link to="/register">aqui</Link></p>
+        <p>Já tem uma conta? <a href="/login">Entrar</a></p>
       </div>
     </div>
   )
