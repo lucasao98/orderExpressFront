@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import OrderList from '../components/OrderList.jsx'
 import OrderForm from '../components/OrderForm.jsx'
+import AddressForm from '../components/AddressForm.jsx'
 
 const BASE_URL = 'http://localhost:3002/v1'
 
@@ -13,6 +14,13 @@ export default function Dashboard() {
   const [query, setQuery] = useState('')
   const [editing, setEditing] = useState(null) // pedido sendo editado, ou null
   const [showForm, setShowForm] = useState(false)
+  const [showAddressForm, setShowAddressForm] = useState(false)
+
+  // Busca de pedido por id
+  const [orderIdSearch, setOrderIdSearch] = useState('')
+  const [searchedOrder, setSearchedOrder] = useState(null)
+  const [searching, setSearching] = useState(false)
+  const [searchError, setSearchError] = useState('')
 
   const isAdmin = user?.role === 'ADMIN'
 
@@ -47,6 +55,40 @@ export default function Dashboard() {
     }
   }
 
+  async function handleSearchOrder(e) {
+    e.preventDefault()
+    if (!orderIdSearch.trim()) return
+
+    setSearching(true)
+    setSearchError('')
+    setSearchedOrder(null)
+
+    try {
+      const response = await fetch(`${BASE_URL}/orders/${orderIdSearch.trim()}`, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Pedido não encontrado.')
+      }
+
+      const data = await response.json()
+      setSearchedOrder(data)
+    } catch (err) {
+      setSearchError(err.message || 'Não foi possível conectar ao servidor.')
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  function clearSearch() {
+    setOrderIdSearch('')
+    setSearchedOrder(null)
+    setSearchError('')
+  }
+
   function openNew() {
     setEditing(null)
     setShowForm(true)
@@ -67,6 +109,10 @@ export default function Dashboard() {
     if (confirm('Excluir este pedido?')) {
       setOrders(orders.filter((o) => o.id !== id))
     }
+  }
+
+  function handleAddressSave() {
+    setShowAddressForm(false)
   }
 
   const filtered = orders.filter((o) =>
@@ -92,13 +138,49 @@ export default function Dashboard() {
             <h1 className="page-title">Pedidos</h1>
             <p className="page-title-sub">{orders.length} pedidos encontrado(s)</p>
           </div>
-          <button className="btn-add" onClick={openNew}>+ Novo Pedido</button>
+          <div>
+            <button className="btn-secondary" onClick={() => setShowAddressForm(true)}>
+              + Novo Endereço
+            </button>
+            <button className="btn-add" onClick={openNew}>+ Novo Pedido</button>
+          </div>
         </div>
+
+        <form onSubmit={handleSearchOrder} className="field" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+          <div style={{ flex: 1 }}>
+            <label htmlFor="orderIdSearch">Buscar pedido por ID</label>
+            <input
+              id="orderIdSearch"
+              value={orderIdSearch}
+              onChange={(e) => setOrderIdSearch(e.target.value)}
+              placeholder="Cole o ID do pedido"
+            />
+          </div>
+          <button type="submit" className="btn-secondary" disabled={searching}>
+            {searching ? 'Buscando...' : 'Buscar'}
+          </button>
+          {(searchedOrder || searchError) && (
+            <button type="button" className="btn-mini" onClick={clearSearch}>
+              Limpar
+            </button>
+          )}
+        </form>
+
+        {searchError && <p className="login-error">{searchError}</p>}
+
+        {searchedOrder && (
+          <>
+            <p className="page-title-sub">Resultado da busca:</p>
+            <OrderList contacts={[searchedOrder]} onEdit={openEdit} onDelete={handleDelete} />
+          </>
+        )}
 
         {loading && <p>Carregando pedidos...</p>}
         {error && <p className="login-error">{error}</p>}
 
+        {!searchedOrder && (
           <OrderList contacts={filtered} onEdit={openEdit} onDelete={handleDelete} />
+        )}
       </main>
 
       {showForm && (
@@ -106,6 +188,13 @@ export default function Dashboard() {
           initial={editing}
           onSave={handleSave}
           onCancel={() => { setShowForm(false); setEditing(null) }}
+        />
+      )}
+
+      {showAddressForm && (
+        <AddressForm
+          onSave={handleAddressSave}
+          onCancel={() => setShowAddressForm(false)}
         />
       )}
     </div>
