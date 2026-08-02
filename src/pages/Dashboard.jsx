@@ -57,9 +57,10 @@ export default function Dashboard() {
     setShowForm(true)
   }
 
-  function handleSave(form) {
+  function handleSave() {
     setShowForm(false)
     setEditing(null)
+    loadOrders()
   }
 
   function handleDelete(id) {
