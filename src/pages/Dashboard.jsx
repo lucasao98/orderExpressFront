@@ -105,10 +105,8 @@ export default function Dashboard() {
     loadOrders()
   }
 
-  function handleDelete(id) {
-    if (confirm('Excluir este pedido?')) {
-      setOrders(orders.filter((o) => o.id !== id))
-    }
+  function handleDelete() {
+    loadOrders()
   }
 
   function handleAddressSave() {

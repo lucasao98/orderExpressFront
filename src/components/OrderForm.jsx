@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const BASE_URL = 'http://localhost:3002/v1'
@@ -20,6 +20,7 @@ export default function OrderForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(initial || empty)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const submittingRef = useRef(false) // trava síncrona contra duplo clique/submit
 
   // Dados para criação de um novo pedido
   const [items, setItems] = useState([])
@@ -109,10 +110,18 @@ export default function OrderForm({ initial, onSave, onCancel }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+    // Bloqueia imediatamente qualquer clique/submit repetido, sem esperar o re-render
+    if (submittingRef.current) return
+    submittingRef.current = true
+
     setError('')
 
     if (isEditing) {
-      if (!form.orderStatus) return
+      if (!form.orderStatus) {
+        submittingRef.current = false
+        return
+      }
 
       setSaving(true)
       try {
@@ -128,6 +137,7 @@ export default function OrderForm({ initial, onSave, onCancel }) {
         if (!response.ok) {
           setError('Não foi possível atualizar o status do pedido.')
           setSaving(false)
+          submittingRef.current = false
           return
         }
 
@@ -135,6 +145,7 @@ export default function OrderForm({ initial, onSave, onCancel }) {
       } catch (err) {
         setError('Não foi possível conectar ao servidor.')
         setSaving(false)
+        submittingRef.current = false
       }
       return
     }
@@ -142,10 +153,12 @@ export default function OrderForm({ initial, onSave, onCancel }) {
     // Criação de novo pedido
     if (selectedAddressIndex === '') {
       setError('Selecione um endereço de entrega.')
+      submittingRef.current = false
       return
     }
     if (orderItems.length === 0) {
       setError('Adicione ao menos um item.')
+      submittingRef.current = false
       return
     }
 
@@ -153,6 +166,7 @@ export default function OrderForm({ initial, onSave, onCancel }) {
 
     if (!address.addressId) {
       setError('Endereço sem identificador. Não é possível criar o pedido.')
+      submittingRef.current = false
       return
     }
 
@@ -179,6 +193,7 @@ export default function OrderForm({ initial, onSave, onCancel }) {
       if (!response.ok) {
         setError('Não foi possível criar o pedido.')
         setSaving(false)
+        submittingRef.current = false
         return
       }
 
@@ -186,6 +201,7 @@ export default function OrderForm({ initial, onSave, onCancel }) {
     } catch (err) {
       setError('Não foi possível conectar ao servidor.')
       setSaving(false)
+      submittingRef.current = false
     }
   }
 

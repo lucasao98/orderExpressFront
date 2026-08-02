@@ -58,6 +58,18 @@ export default function OrderList({ contacts, onEdit, onDelete }) {
             Status: {STATUS_LABELS[order.orderStatus] || order.orderStatus}
           </p>
           <p className="contact-meta">Total: R$ {order.totalPrice.toFixed(2)}</p>
+          {order.items && order.items.length > 0 && (
+            <div className="contact-meta">
+              Itens:
+              <ul>
+                {order.items.map((item, itemIndex) => (
+                  <li key={itemIndex}>
+                    {item.item_name ? `${item.item_name} — ` : ''} Qtd: {item.quantity} Preço R${item.item_price.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="contact-actions">
             <button className="btn-mini" onClick={() => onEdit(order)}>Editar</button>
             <button className="btn-mini danger" onClick={() => handleDelete(order)}>Excluir</button>
