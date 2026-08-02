@@ -51,6 +51,9 @@ export default function OrderList({ contacts, onEdit, onDelete }) {
           <div className="contact-tab" />
           <h3 className="contact-name">Cliente: {order.userName}</h3>
           {order.userEmail && <p className="contact-meta">Email: {order.userEmail}</p>}
+          {order.orderTrackingCode && (
+            <p className="contact-meta">Código de rastreio: {order.orderTrackingCode}</p>
+          )}
           <p className="contact-meta">
             Status: {STATUS_LABELS[order.orderStatus] || order.orderStatus}
           </p>

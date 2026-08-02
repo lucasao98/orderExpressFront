@@ -16,8 +16,8 @@ export default function Dashboard() {
   const [showForm, setShowForm] = useState(false)
   const [showAddressForm, setShowAddressForm] = useState(false)
 
-  // Busca de pedido por id
-  const [orderIdSearch, setOrderIdSearch] = useState('')
+  // Busca de pedido por código de rastreio
+  const [trackingCodeSearch, setTrackingCodeSearch] = useState('')
   const [searchedOrder, setSearchedOrder] = useState(null)
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
@@ -57,14 +57,14 @@ export default function Dashboard() {
 
   async function handleSearchOrder(e) {
     e.preventDefault()
-    if (!orderIdSearch.trim()) return
+    if (!trackingCodeSearch.trim()) return
 
     setSearching(true)
     setSearchError('')
     setSearchedOrder(null)
 
     try {
-      const response = await fetch(`${BASE_URL}/orders/${orderIdSearch.trim()}`, {
+      const response = await fetch(`${BASE_URL}/orders/tracking/${trackingCodeSearch.trim()}`, {
         headers: {
           'Authorization': `Bearer ${user.token}`,
         },
@@ -84,7 +84,7 @@ export default function Dashboard() {
   }
 
   function clearSearch() {
-    setOrderIdSearch('')
+    setTrackingCodeSearch('')
     setSearchedOrder(null)
     setSearchError('')
   }
@@ -148,12 +148,12 @@ export default function Dashboard() {
 
         <form onSubmit={handleSearchOrder} className="field" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
           <div style={{ flex: 1 }}>
-            <label htmlFor="orderIdSearch">Buscar pedido por ID</label>
+            <label htmlFor="trackingCodeSearch">Buscar pedido por código de rastreio</label>
             <input
-              id="orderIdSearch"
-              value={orderIdSearch}
-              onChange={(e) => setOrderIdSearch(e.target.value)}
-              placeholder="Cole o ID do pedido"
+              id="trackingCodeSearch"
+              value={trackingCodeSearch}
+              onChange={(e) => setTrackingCodeSearch(e.target.value)}
+              placeholder="Cole o código de rastreio"
             />
           </div>
           <button type="submit" className="btn-secondary" disabled={searching}>
