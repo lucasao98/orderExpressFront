@@ -1,6 +1,6 @@
-# OrderExpress — Gerenciador de Contatos
+# OrderExpress — Gerenciador de Pedidos
 
-Projeto simples em React com tela de login e CRUD completo (criar, ler, editar, excluir).
+Projeto simples em React com tela de login e CRUD completo para simular sistema de pedidos
 
 ## Como rodar
 
@@ -36,13 +36,5 @@ src/
 
 ## Dados
 
-Os contatos ficam salvos no `localStorage` do navegador (não há backend).
-Isso é só para fins de demonstração — para persistência real, troque as
-funções `loadContacts` / `setContacts` em `Dashboard.jsx` por chamadas
-a uma API (ex: `fetch('/api/contacts')`).
-
-## Onde editar para deixar do seu jeito
-
-- **Cores e tipografia:** `src/index.css` (variáveis no topo do arquivo, em `:root`)
-- **Campos do formulário:** `src/components/ContactForm.jsx`
-- **Regras de login:** `src/context/AuthContext.jsx`
+Os dados vem da api feita em Spring Boot localizadas na porta: 3002.
+BaseUrl: http://localhost:3002/v1/

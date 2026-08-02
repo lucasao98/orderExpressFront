@@ -1,0 +1,49 @@
+# Dependências
+node_modules/
+.pnp
+.pnp.js
+
+# Build / produção
+dist/
+build/
+out/
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+*.log
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Testes / cobertura
+coverage/
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+
+# Vite
+.vite/
+
+# TypeScript (se usar)
+*.tsbuildinfo
+
+# Sistema operacional
+Thumbs.db
