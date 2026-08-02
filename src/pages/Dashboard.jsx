@@ -1,59 +1,75 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
-import ContactList from '../components/ContactList.jsx'
-import ContactForm from '../components/ContactForm.jsx'
+import OrderList from '../components/OrderList.jsx'
+import OrderForm from '../components/OrderForm.jsx'
 
-const STORAGE_KEY = 'cm_contacts'
-
-const seed = [
-  { id: 1, name: 'Marina Souza', email: 'marina@exemplo.com', phone: '(11) 98888-1234' },
-  { id: 2, name: 'Carlos Andrade', email: 'carlos@exemplo.com', phone: '(21) 97777-5678' },
-]
-
-function loadContacts() {
-  const saved = localStorage.getItem(STORAGE_KEY)
-  return saved ? JSON.parse(saved) : seed
-}
+const BASE_URL = 'http://localhost:3002/v1'
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
-  const [contacts, setContacts] = useState(loadContacts)
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [query, setQuery] = useState('')
-  const [editing, setEditing] = useState(null) // contato sendo editado, ou null
+  const [editing, setEditing] = useState(null) // pedido sendo editado, ou null
   const [showForm, setShowForm] = useState(false)
 
+  const isAdmin = user?.role === 'ADMIN'
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts))
-  }, [contacts])
+    loadOrders()
+  }, [])
+
+  async function loadOrders() {
+    setLoading(true)
+    setError('')
+    try {
+      const url = isAdmin
+        ? `${BASE_URL}/orders`
+        : `${BASE_URL}/orders/user/${user.userId}`
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Não foi possível carregar os pedidos.')
+      }
+
+      const data = await response.json()
+      setOrders(data)
+    } catch (err) {
+      setError(err.message || 'Não foi possível conectar ao servidor.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   function openNew() {
     setEditing(null)
     setShowForm(true)
   }
 
-  function openEdit(contact) {
-    setEditing(contact)
+  function openEdit(order) {
+    setEditing(order)
     setShowForm(true)
   }
 
   function handleSave(form) {
-    if (editing) {
-      setContacts(contacts.map((c) => (c.id === editing.id ? { ...c, ...form } : c)))
-    } else {
-      setContacts([...contacts, { ...form, id: Date.now() }])
-    }
     setShowForm(false)
     setEditing(null)
   }
 
   function handleDelete(id) {
-    if (confirm('Excluir este contato?')) {
-      setContacts(contacts.filter((c) => c.id !== id))
+    if (confirm('Excluir este pedido?')) {
+      setOrders(orders.filter((o) => o.id !== id))
     }
   }
 
-  const filtered = contacts.filter((c) =>
-    c.name.toLowerCase().includes(query.toLowerCase())
+  const filtered = orders.filter((o) =>
+    o.userName.toLowerCase().includes(query.toLowerCase())
   )
 
   return (
@@ -64,7 +80,7 @@ export default function Dashboard() {
           OrderExpress
         </div>
         <div className="topbar-right">
-          <span>Olá, {user.username}</span>
+          <span>Olá, {user.name}</span>
           <button className="logout-btn" onClick={logout}>Sair</button>
         </div>
       </header>
@@ -72,26 +88,20 @@ export default function Dashboard() {
       <main className="content">
         <div className="page-header">
           <div>
-            <h1 className="page-title">Contatos</h1>
-            <p className="page-title-sub">{contacts.length} contato(s) cadastrado(s)</p>
+            <h1 className="page-title">Pedidos</h1>
+            <p className="page-title-sub">{orders.length} pedidos encontrado(s)</p>
           </div>
-          <button className="btn-add" onClick={openNew}>+ Novo contato</button>
+          <button className="btn-add" onClick={openNew}>+ Novo Pedido</button>
         </div>
 
-        <div className="search-row">
-          <input
-            type="text"
-            placeholder="Buscar por nome..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
+        {loading && <p>Carregando pedidos...</p>}
+        {error && <p className="login-error">{error}</p>}
 
-        <ContactList contacts={filtered} onEdit={openEdit} onDelete={handleDelete} />
+          <OrderList contacts={filtered} onEdit={openEdit} onDelete={handleDelete} />
       </main>
 
       {showForm && (
-        <ContactForm
+        <OrderForm
           initial={editing}
           onSave={handleSave}
           onCancel={() => { setShowForm(false); setEditing(null) }}

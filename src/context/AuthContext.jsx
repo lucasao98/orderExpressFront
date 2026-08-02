@@ -2,8 +2,7 @@ import { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext(null)
 
-const API_URL = 'http://localhost:3002/v1/auth/signin'
-const REGISTER_URL = 'http://localhost:3002/v1/auth/signup'
+const BASE_URL = 'http://localhost:3002/v1'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -13,7 +12,7 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${BASE_URL}/auth/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,7 +32,27 @@ export function AuthProvider({ children }) {
       }
 
       const data = await response.json()
-      const sessionUser = { email, token: data.token, ...data.user }
+      const { token, user_id: userId } = data
+
+      // Busca os dados completos do usuário (name, email, role) antes de liberar acesso
+      const userResponse = await fetch(`${BASE_URL}/users/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (!userResponse.ok) {
+        return { ok: false, error: 'Não foi possível carregar os dados do usuário.' }
+      }
+
+      const userData = await userResponse.json()
+      const sessionUser = {
+        userId,
+        token,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+      }
 
       localStorage.setItem('cm_user', JSON.stringify(sessionUser))
       setUser(sessionUser)
@@ -45,7 +64,7 @@ export function AuthProvider({ children }) {
 
   async function register(name, email, password, role = "CLIENT") {
     try {
-      const response = await fetch(REGISTER_URL, {
+      const response = await fetch(`${BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,8 +94,12 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  function hasRole(role) {
+    return user?.role === role
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, hasRole }}>
       {children}
     </AuthContext.Provider>
   )
