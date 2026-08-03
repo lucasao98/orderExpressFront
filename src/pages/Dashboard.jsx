@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import OrderList from '../components/OrderList.jsx'
 import OrderForm from '../components/OrderForm.jsx'
 import AddressForm from '../components/AddressForm.jsx'
+import ItemForm from '../components/ItemForm.jsx'
 
 const BASE_URL = 'http://localhost:3002/v1'
 
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [editing, setEditing] = useState(null) // pedido sendo editado, ou null
   const [showForm, setShowForm] = useState(false)
   const [showAddressForm, setShowAddressForm] = useState(false)
+  const [showItemForm, setShowItemForm] = useState(false)
 
   // Busca de pedido por código de rastreio
   const [trackingCodeSearch, setTrackingCodeSearch] = useState('')
@@ -113,6 +115,10 @@ export default function Dashboard() {
     setShowAddressForm(false)
   }
 
+  function handleItemSave() {
+    setShowItemForm(false)
+  }
+
   const filtered = orders.filter((o) =>
     o.userName.toLowerCase().includes(query.toLowerCase())
   )
@@ -140,6 +146,11 @@ export default function Dashboard() {
             <button className="btn-secondary" onClick={() => setShowAddressForm(true)}>
               + Novo Endereço
             </button>
+            {isAdmin && (
+              <button className="btn-secondary" onClick={() => setShowItemForm(true)}>
+                + Novo Item
+              </button>
+            )}
             <button className="btn-add" onClick={openNew}>+ Novo Pedido</button>
           </div>
         </div>
@@ -193,6 +204,13 @@ export default function Dashboard() {
         <AddressForm
           onSave={handleAddressSave}
           onCancel={() => setShowAddressForm(false)}
+        />
+      )}
+
+      {showItemForm && isAdmin && (
+        <ItemForm
+          onSave={handleItemSave}
+          onCancel={() => setShowItemForm(false)}
         />
       )}
     </div>

@@ -12,6 +12,7 @@ const STATUS_LABELS = {
 
 export default function OrderList({ contacts, onEdit, onDelete }) {
   const { user } = useAuth()
+  const canManage = user?.role !== 'CLIENT'
 
   async function handleDelete(order) {
     if (!confirm('Excluir este pedido?')) return
@@ -64,16 +65,18 @@ export default function OrderList({ contacts, onEdit, onDelete }) {
               <ul>
                 {order.items.map((item, itemIndex) => (
                   <li key={itemIndex}>
-                    {item.item_name ? `${item.item_name} — ` : ''} Qtd: {item.quantity} Preço R${item.item_price.toFixed(2)}
+                    {item.item_name ? `${item.item_name} — ` : ''} Qtd: {item.quantity} Preço R${item.item_price.toFixed(2)}/un
                   </li>
                 ))}
               </ul>
             </div>
           )}
-          <div className="contact-actions">
-            <button className="btn-mini" onClick={() => onEdit(order)}>Editar</button>
-            <button className="btn-mini danger" onClick={() => handleDelete(order)}>Excluir</button>
-          </div>
+          {canManage && (
+            <div className="contact-actions">
+              <button className="btn-mini" onClick={() => onEdit(order)}>Editar</button>
+              <button className="btn-mini danger" onClick={() => handleDelete(order)}>Excluir</button>
+            </div>
+          )}
         </div>
       ))}
     </div>
