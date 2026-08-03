@@ -12,27 +12,9 @@ npm run dev
 Depois abra o endereço mostrado no terminal (geralmente `http://localhost:5173`).
 
 ## Login de demonstração
-
+O login abaixo pode ser utilizado. Ele possui permissões de administrador pelo sistema
 - **Email:** `admin@foody.com`
 - **Senha:** `123456`
-
-
-## Estrutura
-
-```
-src/
-  context/AuthContext.jsx   → lógica de autenticação (mock, salva sessão no localStorage)
-  components/
-    ProtectedRoute.jsx      → bloqueia acesso ao dashboard sem login
-    ContactForm.jsx         → modal de criar/editar contato
-    ContactList.jsx         → listagem em cards
-  pages/
-    Login.jsx               → tela de login
-    Dashboard.jsx           → tela principal com o CRUD de contatos
-  App.jsx                   → rotas
-  main.jsx                  → ponto de entrada
-  index.css                 → estilos e tokens de design
-```
 
 ## Dados
 
