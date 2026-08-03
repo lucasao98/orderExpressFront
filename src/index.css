@@ -382,3 +382,8 @@ input, select {
   font-size: 0.88rem;
 }
 .btn-secondary:hover { background: var(--paper); }
+
+
+.mr-1 {
+  margin-right: 2rem;
+}

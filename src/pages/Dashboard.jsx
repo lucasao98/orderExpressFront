@@ -143,11 +143,11 @@ export default function Dashboard() {
             <p className="page-title-sub">{orders.length} pedidos encontrado(s)</p>
           </div>
           <div>
-            <button className="btn-secondary" onClick={() => setShowAddressForm(true)}>
+            <button className="btn-secondary mr-1" onClick={() => setShowAddressForm(true)}>
               + Novo Endereço
             </button>
             {isAdmin && (
-              <button className="btn-secondary" onClick={() => setShowItemForm(true)}>
+              <button className="btn-secondary mr-1" onClick={() => setShowItemForm(true)}>
                 + Novo Item
               </button>
             )}
